@@ -13,6 +13,7 @@ def match_file_pattern(file_name):
     return False
 
 def get_file_info(file_path):
+
     file_path = Path(file_path)
     file_name = file_path.name
     file_size = file_path.stat().st_size
@@ -31,7 +32,7 @@ def update_file_info(file_path):
     
     except FileInSystem.DoesNotExist:
         file_in_system = FileInSystem()
-
+        file_in_system.file_path = file_path
         file_in_system.file_name = file_name
         file_in_system.file_size = file_size
         file_in_system.file_type = file_type
