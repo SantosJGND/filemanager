@@ -27,17 +27,19 @@ def get_file_info(file_path):
     if os.path.exists(file_path) is False:
         file_size = 0
         file_deleted = True
+        file_date = timezone.now()
     else:
         file_size = os.path.getsize(file_path)
         file_deleted = False
+        file_date = timezone.make_aware(
+            datetime.datetime.fromtimestamp(file_path.stat().st_mtime)
+        )
 
     file_path = Path(file_path)
     file_name = file_path.name
 
     file_type = file_path.suffix
-    file_date = timezone.make_aware(
-        datetime.datetime.fromtimestamp(file_path.stat().st_mtime)
-    )
+
     file_hash = "not implemented yet"
 
     return file_name, file_size, file_type, file_date, file_hash, file_deleted
