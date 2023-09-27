@@ -21,6 +21,12 @@ class Command(BaseCommand):
             help="File to match: sample names, 1 per row, column = 'sample_name'",
             required=True,
         )
+        parser.add_argument(
+            "-o",
+            "--output",
+            help="Output file name",
+            default="matched_samples.tsv",
+        )
 
     def handle(self, *args, **options):
         excel_file = os.path.join(
@@ -30,6 +36,7 @@ class Command(BaseCommand):
         excel_import = ExcelImport(excel_file)
         excel_import.prep()
         filepath = options["file"]
+        output = options["output"]
         query_file = pd.read_csv(filepath, sep="\t")
         sample_names = query_file["sample_name"].unique().tolist()
 
@@ -40,4 +47,4 @@ class Command(BaseCommand):
         print(samples_df.shape[0])
         print(samples_df.head())
 
-        samples_df.to_csv("matched_samples.tsv", sep="\t", index=False)
+        samples_df.to_csv(output, sep="\t", index=False)
