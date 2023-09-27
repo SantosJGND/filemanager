@@ -3,6 +3,7 @@ from typing import List, Literal
 
 import pandas as pd
 from collect_files.models import FileInSystem
+from django.db.models import Q
 
 
 class FastqDatabaseConnector(ABC):
@@ -88,8 +89,6 @@ class ExcelImport(FastqDatabaseConnector):
 
 
 ##
-
-
 class SystemConnector:
     """
     class to connect to the file system and query files
@@ -106,17 +105,23 @@ class SystemConnector:
 
         return files
 
-    def query_filepath(self, file_name: str):
+    def query_filepath(self, row: pd.Series) -> str:
         """
         Query the file system for a list of sample names.
         """
+        file_name = row["filename"]
+        sample_name = row["sample_name"]
         try:
-            file = FileInSystem.objects.get(file_name=file_name)
+            file = FileInSystem.objects.get(
+                Q(file_name=file_name) | Q(file_name__icontains=sample_name)
+            )
             file_path = file.file_path
         except FileInSystem.DoesNotExist:
             file_path = None
         except FileInSystem.MultipleObjectsReturned:
-            files = FileInSystem.objects.filter(file_name=file_name).first()
+            files = FileInSystem.objects.filter(
+                Q(file_name=file_name) | Q(file_name__icontains=sample_name)
+            ).first()
             file_path = files.file_path
 
         return file_path
@@ -135,7 +140,7 @@ class StockManager:
 
     def query_filepaths(self, file_names: list[str]) -> pd.DataFrame:
         sample_file_df = self.query_filenames(file_names)
-        sample_file_df["file_path"] = sample_file_df["filename"].apply(
-            self.system_connector.query_filepath
+        sample_file_df["file_path"] = sample_file_df.apply(
+            self.system_connector.query_filepath, axis=1
         )
         return sample_file_df
