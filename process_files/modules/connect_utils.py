@@ -23,7 +23,9 @@ class ExcelImport(FastqDatabaseConnector):
     engine: Literal["xlrd", "openpyxl", "odf", "pyxlsb"] | None = "openpyxl"
     panel: str = "Fastq_Database"
     filename_col_excel = "FASTQ FILE NAME"
+
     sample_name_col_excel = "Sample/Isolate/Strain Designation"
+    simplified_sample_name_col_excel = "Sample Name (Simplified)"
 
     columns = [
         "Order",
@@ -58,6 +60,7 @@ class ExcelImport(FastqDatabaseConnector):
             columns=[self.sample_col_name, self.filename_col_name]
         )
 
+
     def read_panels(self):
         return pd.read_excel(self.file, sheet_name=self.panel, engine=self.engine)
 
@@ -79,12 +82,19 @@ class ExcelImport(FastqDatabaseConnector):
             .reset_index(drop=True)
         )
 
+        self.sample_files_df[self.simplified_sample_name_col_excel] = (
+            self.sample_files_df[self.sample_col_name]
+            .str.replace("-", "_")
+        )
+
     def query_filenames(self, sample_names: list[str]) -> pd.DataFrame:
         """
         Query the sample files dataframe for a list of sample names.
+        it is possible that the original name has a different combination of - and _.
         """
+
         return self.sample_files_df[
-            self.sample_files_df[self.sample_col_name].isin(sample_names)
+            self.sample_files_df[self.sample_col_name].isin(sample_names) | self.sample_files_df[self.simplified_sample_name_col_excel].isin(sample_names)
         ]
 
 
