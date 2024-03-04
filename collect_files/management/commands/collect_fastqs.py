@@ -2,7 +2,7 @@ import datetime
 import os
 from pathlib import Path
 
-from collect_files.models import FileInSystem
+from collect_files.models import FileInSystem, UpdateSystemFiles
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
@@ -45,12 +45,13 @@ def get_file_info(file_path):
     return file_name, file_size, file_type, file_date, file_hash, file_deleted
 
 
-def update_file_info(file_path):
+def update_file_info(file_path) -> int:
     file_name, file_size, file_type, file_date, file_hash, file_deleted = get_file_info(
         file_path
     )
     try:
         file_in_system = FileInSystem.objects.get(file_path=file_path)
+        return 0
 
     except FileInSystem.DoesNotExist:
         file_in_system = FileInSystem()
@@ -63,9 +64,11 @@ def update_file_info(file_path):
         file_in_system.is_deleted = file_deleted
 
         file_in_system.save()
+        return 1
 
     except FileInSystem.MultipleObjectsReturned:
-        pass
+
+        return 0
 
 
 def find_files(path):
@@ -79,8 +82,14 @@ class Command(BaseCommand):
     help = "collect fastq and fastq.gz files from SOURCE_DATA_ROOT recursively"
 
     def handle(self, *args, **options):
+        files_udpated = 0
         self.stdout.write(f"Collecting fastq files from {SOURCE_DATA_ROOT}")
         for file_path in find_files(SOURCE_DATA_ROOT):
-            update_file_info(file_path)
+            updated = update_file_info(file_path)
+            files_udpated += updated
 
         self.stdout.write(f"Collected fastq files from {SOURCE_DATA_ROOT}")
+        self.stdout.write(f"Files updated: {files_udpated}")
+        update = UpdateSystemFiles()
+        update.files_updated = files_udpated
+        update.save()

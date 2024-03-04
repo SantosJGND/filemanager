@@ -1,0 +1,26 @@
+.files-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.files-table-header {
+    background-color: #007BFF; /* Blue background */
+    color: white; /* White text */
+    padding: 10px;
+    text-align: left;
+}
+
+.files-table-data {
+    padding: 10px;
+    border: 1px solid #ddd; /* Light gray border */
+}
+
+/* Add a hover effect to the rows */
+.files-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Add striping to the table */
+.files-table.table-striped tr:nth-child(even) {
+    background-color: #f2f2f2;
+}

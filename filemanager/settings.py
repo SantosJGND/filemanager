@@ -27,7 +27,11 @@ SECRET_KEY = "django-insecure-gd_wt1z=1*smmz^3m&yhu&@+(y6y@_a$&=ca4fn+n915##bs=1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "0.0.0.0",
+    "localhost",
+]
 
 
 # Application definition
@@ -40,6 +44,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     #'collect_files.apps.CollectFilesConfig',
+    "django_tables2",
+    "filemanager",
     "collect_files",
     "process_files",
 ]
@@ -60,7 +66,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / "filemanager/templates",
+            BASE_DIR / "templates",
         ],
         "APP_DIRS": True,
         "OPTIONS": {
@@ -123,7 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
-
+STATICFILES_DIRS = [BASE_DIR / "static"]
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

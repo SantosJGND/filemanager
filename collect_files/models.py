@@ -15,3 +15,8 @@ class FileInSystem(models.Model):
 
     def __str__(self):
         return self.file_name
+
+
+class UpdateSystemFiles(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    files_updated = models.IntegerField()

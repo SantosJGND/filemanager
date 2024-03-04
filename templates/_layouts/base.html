@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>File Management Application</title>
+    <!-- Add your CSS files here -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <nav>
+      <!-- Navigation bar -->
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'upload' %}">Upload File</a>
+      <a href="{% url 'manage_files' page=0 %}">Manage</a>
+    </nav>
+
+    <main>
+      <!-- Main content area -->
+      {% block content %} {% endblock %}
+    </main>
+
+    <!-- Add your JavaScript files here -->
+    <script src="{% static 'js/script.js' %}"></script>
+  </body>
+</html>

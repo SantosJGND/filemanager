@@ -1,0 +1,37 @@
+{% extends '_layouts/base.html' %} 
+{% load render_table from django_tables2 %}
+{% load static %}
+
+{% block content %} 
+<link rel="stylesheet" type="text/css" href="{% static 'css/tables.css' %}">
+
+<form method="get">
+    <input type="text" name="search" value="{{ request.GET.search }}">
+    <input type="submit" value="Search">
+</form>
+
+{% render_table files_table %} 
+
+<div class="pagination">
+    <span class="step-links">
+        {% if table.has_previous %}
+            <a href="?page=1">first</a>
+            <a href="?page={{ table.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ table.number }} of {{ table.paginator.num_pages }}.
+        </span>
+
+        {% if table.has_next %}
+            <a href="?page={{ table.next_page_number }}">next</a>
+            <a href="?page={{ table.paginator.num_pages }}">last</a>
+        {% endif %}
+    </span>
+</div>
+
+{% for page_num in table.paginator.page_range %}
+    <a href="{% url 'file_list_paginated' page=page_num %}">{{ page_num }}</a>
+{% endfor %}
+
+{% endblock %}
