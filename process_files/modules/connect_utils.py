@@ -4,6 +4,7 @@ from typing import List, Literal
 import pandas as pd
 from collect_files.models import FileInSystem
 from django.db.models import Q
+from django.utils.timezone import make_aware
 
 
 class FastqDatabaseConnector(ABC):
@@ -55,11 +56,13 @@ class ExcelImport(FastqDatabaseConnector):
 
     def __init__(self, file):
         self.file = file
-
-        self.sample_files_df = pd.DataFrame(
-            columns=[self.sample_col_name, self.filename_col_name]
-        )
-
+        try:
+            self.sample_files_df = pd.DataFrame(
+                columns=[self.sample_col_name, self.filename_col_name]
+            )
+        except Exception as e:
+            print(e)
+            raise ValueError("Error reading the file")
 
     def read_panels(self):
         return pd.read_excel(self.file, sheet_name=self.panel, engine=self.engine)
@@ -83,8 +86,7 @@ class ExcelImport(FastqDatabaseConnector):
         )
 
         self.sample_files_df[self.simplified_sample_name_col_excel] = (
-            self.sample_files_df[self.sample_col_name]
-            .str.replace("-", "_")
+            self.sample_files_df[self.sample_col_name].str.replace("-", "_")
         )
 
     def query_filenames(self, sample_names: list[str]) -> pd.DataFrame:
@@ -94,7 +96,10 @@ class ExcelImport(FastqDatabaseConnector):
         """
 
         return self.sample_files_df[
-            self.sample_files_df[self.sample_col_name].isin(sample_names) | self.sample_files_df[self.simplified_sample_name_col_excel].isin(sample_names)
+            self.sample_files_df[self.sample_col_name].isin(sample_names)
+            | self.sample_files_df[self.simplified_sample_name_col_excel].isin(
+                sample_names
+            )
         ]
 
 
@@ -115,29 +120,59 @@ class SystemConnector:
 
         return files
 
+    def query_files(
+        self, row: pd.Series, file_name: str, sample_name: str
+    ) -> List[FileInSystem]:
+        """
+        Query the file system for a list of sample names.
+        """
+
+        files = FileInSystem.objects.filter(
+            Q(file_name=file_name) | Q(file_name__icontains=sample_name)
+        )
+
+        return files
+
     def query_filepath(self, row: pd.Series) -> str:
         """
         Query the file system for a list of sample names.
         """
         file_name = row["filename"]
         sample_name = row["sample_name"]
-        try:
-            file = FileInSystem.objects.get(
-                Q(file_name=file_name) | Q(file_name__icontains=sample_name)
-            )
-            file_path = file.file_path
-        except FileInSystem.DoesNotExist:
-            file_path = None
-        except FileInSystem.MultipleObjectsReturned:
-            files = FileInSystem.objects.filter(
-                Q(file_name=file_name) | Q(file_name__icontains=sample_name)
-            ).first()
-            file_path = files.file_path
+
+        files = self.query_files(row, file_name, sample_name)
+        file_path = ""
+        if files.exists():
+            file_path = files.first().file_path
 
         return file_path
 
 
+from collect_files.models import SystemSample, UpdateSystemSamples
+
+
 class StockManager:
+    time_zone = "UTC"
+    sample_column_fields = [
+        "Order",
+        "Deparment/Unit",
+        "Species",
+        "Sample/Isolate/Strain Designation",
+        "Interest (Surveillance; Reasearch; Tests)",
+        "Project/Work Title",
+        "Requester/Owner",
+        "Published ID",
+        "SRA/ENA Run Accession # (Fastq)",
+        "Run Accession # (Fastq)",
+        "BIOProject",
+        "NGS Instrument",
+        "Read size",
+        "Run Date",
+        "Notes",
+        "FASTQ FILE NAME",
+        "Link to Location in Storage3par",
+    ]
+
     data_connector: FastqDatabaseConnector
     system_connector: SystemConnector
 
@@ -154,3 +189,61 @@ class StockManager:
             self.system_connector.query_filepath, axis=1
         )
         return sample_file_df
+
+    def sample_register(self, row: pd.Series):
+        file_name = row["FASTQ FILE NAME"]
+        sample_name = row["Sample/Isolate/Strain Designation"]
+        files = self.system_connector.query_files(row, file_name, sample_name)
+        updated = 0
+
+        date_run = row["Run Date"]
+        if isinstance(date_run, pd.Timestamp):
+            date_run = date_run.strftime("%Y-%m-%d")
+            # set the date to the timezone
+            date_run = make_aware(pd.Timestamp(date_run), timezone=self.time_zone)
+
+        if date_run == "Missing":
+            date_run = None
+
+        try:
+            system_sample = SystemSample.objects.get(
+                sample_name=row["Sample/Isolate/Strain Designation"],
+                order=row["Order"],
+            )
+        except SystemSample.DoesNotExist:
+            system_sample = SystemSample(
+                sample_name=row["Sample/Isolate/Strain Designation"],
+                order=row["Order"],
+                owner=row["Requester/Owner"],
+                species=row["Species"],
+                project=row["Project/Work Title"],
+                bioproject=row["BIOProject"],
+                department=row["Deparment/Unit"],
+                interest=row["Interest (Surveillance; Reasearch; Tests)"],
+                ngs_instrument=row["NGS Instrument"],
+                read_size=row["Read size"],
+                run_date=date_run,
+                run_date_str=row["Run Date"],
+                published_id=row["Published ID"],
+                accession_id=row["SRA/ENA Run Accession # (Fastq)"],
+                storage_link=row["Link to Location in Storage3par"],
+                notes=row["Notes"],
+            )
+            system_sample.save()
+
+            for file in files:
+                file.system_sample = system_sample
+                file.save()
+
+            updated = 1
+
+        return updated
+
+    def sample_register_all(self, sample_file_df: pd.DataFrame) -> int:
+
+        print(f"## Registering {sample_file_df.shape[0]} samples ##")
+
+        update = sample_file_df.apply(self.sample_register, axis=1)
+
+        UpdateSystemSamples.objects.create(samples_updated=update.sum())
+        return update.sum()
