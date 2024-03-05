@@ -25,6 +25,8 @@ class FilesView(generic.ListView):
         if search_term:
             files_in_system = files_in_system.filter(
                 Q(file_name__icontains=search_term)
+                | Q(file_path__icontains=search_term)
+                | Q(system_sample__sample_name__icontains=search_term)
             )
 
         files_table = FileInSystemTable(files_in_system)
@@ -65,6 +67,9 @@ class SamplesView(generic.TemplateView):
         if search_term:
             samples_in_system = samples_in_system.filter(
                 Q(sample_name__icontains=search_term)
+                | Q(species__icontains=search_term)
+                | Q(project__icontains=search_term)
+                | Q(bioproject__icontains=search_term)
             )
 
         # sort by date earliest to latest

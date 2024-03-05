@@ -3,23 +3,6 @@ from django.db import models
 # Create your models here.
 
 
-class FileInSystem(models.Model):
-    file_name = models.CharField(max_length=200)
-    file_path = models.FilePathField(path="/", max_length=200)
-    file_size = models.IntegerField()
-    file_type = models.CharField(max_length=200)
-    file_date = models.DateTimeField("date published")
-    file_hash = models.CharField(max_length=200)
-    is_deleted = models.BooleanField(default=False)
-
-    system_sample = models.ForeignKey(
-        "SystemSample", on_delete=models.CASCADE, default=None, null=True
-    )
-
-    def __str__(self):
-        return self.file_name
-
-
 class UpdateSystemFiles(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     files_updated = models.IntegerField()
@@ -51,3 +34,20 @@ class SystemSample(models.Model):
 class UpdateSystemSamples(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     samples_updated = models.IntegerField()
+
+
+class FileInSystem(models.Model):
+    file_name = models.CharField(max_length=200)
+    file_path = models.FilePathField(path="/", max_length=200)
+    file_size = models.IntegerField()
+    file_type = models.CharField(max_length=200)
+    file_date = models.DateTimeField("date published")
+    file_hash = models.CharField(max_length=200)
+    is_deleted = models.BooleanField(default=False)
+
+    system_sample = models.ForeignKey(
+        SystemSample, on_delete=models.CASCADE, default=None, null=True
+    )
+
+    def __str__(self):
+        return self.file_name
