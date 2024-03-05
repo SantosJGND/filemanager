@@ -189,8 +189,7 @@ class StockManager:
         return sample_file_df
 
     def sample_register(self, row: pd.Series):
-        file_name = row["FASTQ FILE NAME"]
-        sample_name = row["Sample/Isolate/Strain Designation"]
+        file_name = str(row["FASTQ FILE NAME"])
         files = self.system_connector.query_files_by_filename(file_name)
         updated = 0
 
