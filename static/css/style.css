@@ -59,6 +59,12 @@ button:hover {
     background-color: #444;
 }
 
+.card {
+    border: 3px solid #71aacc; /* Blue border */
+    border-radius: 5px; /* Rounded corners */
+}
+
 .homecard {
     margin-bottom: 20px; /* Adjust as needed */
 }
+
