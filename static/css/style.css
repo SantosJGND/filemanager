@@ -58,3 +58,7 @@ button {
 button:hover {
     background-color: #444;
 }
+
+.homecard {
+    margin-bottom: 20px; /* Adjust as needed */
+}

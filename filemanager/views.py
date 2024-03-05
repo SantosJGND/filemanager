@@ -8,7 +8,7 @@ from collect_files.models import (
 from typing import Any
 
 from django.views import generic
-from django.core.paginator import Paginator
+from filemanager.settings import SOURCE_DATA_ROOT
 
 
 class HomePageView(generic.TemplateView):
@@ -35,6 +35,7 @@ class HomePageView(generic.TemplateView):
         samples_in_system = SystemSample.objects.all().count()
 
         context["files_in_system"] = files_in_system
+        context["scan_root"] = SOURCE_DATA_ROOT
         context["samples_in_system"] = samples_in_system
 
         return context
