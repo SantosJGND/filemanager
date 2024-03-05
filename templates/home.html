@@ -1,5 +1,30 @@
-{% extends '_layouts/base.html' %} {% block content %}
-<h1>Home</h1>
-<p>Last update: {{ last_update }}</p>
-<p>Number of files in system: {{ files_in_system }}</p>
+{% extends '_layouts/base.html' %} 
+{% load static %} 
+{% block content %}
+<h1>Dashboard</h1>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <img src="{% static 'images/file_icon.png' %}" alt="File Icon" width="30" height="30"> Files
+                </h5>
+                <p class="card-text">Last File Scan: {{ last_file_update }}</p>
+                <p class="card-text">Number of files in system: {{ files_in_system }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <img src="{% static 'images/sample_icon.png' %}" alt="Sample Icon" width="30" height="30"> Samples
+                </h5>
+                <p class="card-text">Last Sample Upload: {{ last_sample_update }}</p>
+                <p class="card-text">Number of samples in system: {{ samples_in_system }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

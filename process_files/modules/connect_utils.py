@@ -120,16 +120,14 @@ class SystemConnector:
 
         return files
 
-    def query_files(
-        self, row: pd.Series, file_name: str, sample_name: str
-    ) -> List[FileInSystem]:
+    def query_files_by_filename(self, file_name: str) -> List[FileInSystem]:
         """
         Query the file system for a list of sample names.
         """
 
-        files = FileInSystem.objects.filter(
-            Q(file_name=file_name) | Q(file_name__icontains=sample_name)
-        )
+        file_names = file_name.split(";")
+
+        files = FileInSystem.objects.filter(file_name__in=file_names)
 
         return files
 
@@ -140,7 +138,7 @@ class SystemConnector:
         file_name = row["filename"]
         sample_name = row["sample_name"]
 
-        files = self.query_files(row, file_name, sample_name)
+        files = self.query_files_by_filename(file_name)
         file_path = ""
         if files.exists():
             file_path = files.first().file_path
@@ -193,7 +191,7 @@ class StockManager:
     def sample_register(self, row: pd.Series):
         file_name = row["FASTQ FILE NAME"]
         sample_name = row["Sample/Isolate/Strain Designation"]
-        files = self.system_connector.query_files(row, file_name, sample_name)
+        files = self.system_connector.query_files_by_filename(file_name)
         updated = 0
 
         date_run = row["Run Date"]
@@ -202,7 +200,7 @@ class StockManager:
             # set the date to the timezone
             date_run = make_aware(pd.Timestamp(date_run), timezone=self.time_zone)
 
-        if date_run == "Missing":
+        if date_run in ["Missing", "n.a.", "missing", ""]:
             date_run = None
 
         try:

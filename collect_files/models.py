@@ -43,6 +43,10 @@ class SystemSample(models.Model):
     storage_link = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
 
+    @property
+    def files(self):
+        return FileInSystem.objects.filter(system_sample=self)
+
 
 class UpdateSystemSamples(models.Model):
     date = models.DateTimeField(auto_now_add=True)

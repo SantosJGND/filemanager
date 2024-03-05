@@ -1,9 +1,11 @@
-from collect_files.models import FileInSystem, UpdateSystemFiles
-from collect_files.tables import FileInSystemTable
-from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
+from collect_files.models import (
+    FileInSystem,
+    UpdateSystemFiles,
+    UpdateSystemSamples,
+    SystemSample,
+)
+
 from typing import Any
-import os
 
 from django.views import generic
 from django.core.paginator import Paginator
@@ -19,12 +21,20 @@ class HomePageView(generic.TemplateView):
         if UpdateSystemFiles.objects.all().exists():
             updates = UpdateSystemFiles.objects.all().order_by("-date").first()
             print(updates.date)
-            context["last_update"] = updates.date
+            context["last_file_update"] = updates.date
         else:
-            context["last_update"] = "Never"
+            context["last_file_update"] = "Never"
+
+        if UpdateSystemSamples.objects.all().exists():
+            updates = UpdateSystemSamples.objects.all().order_by("-date").first()
+            context["last_sample_update"] = updates.date
+        else:
+            context["last_sample_update"] = "Never"
 
         files_in_system = FileInSystem.objects.all().count()
+        samples_in_system = SystemSample.objects.all().count()
 
         context["files_in_system"] = files_in_system
+        context["samples_in_system"] = samples_in_system
 
         return context

@@ -1,10 +1,18 @@
+.table-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #ddd;
+}
+
+
+
 .files-table {
     width: 100%;
     border-collapse: collapse;
 }
 
 .files-table-header {
-    background-color: #007BFF; /* Blue background */
+    background-color: #d6e5f5; /* Blue background */
     color: white; /* White text */
     padding: 10px;
     text-align: left;
@@ -24,3 +32,4 @@
 .files-table.table-striped tr:nth-child(even) {
     background-color: #f2f2f2;
 }
+

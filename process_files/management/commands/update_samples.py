@@ -23,13 +23,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        excel_file = os.path.join(
-            "process_files", "modules", "DDI_BIOINF_NGS_MANAGEMENT.xlsx"
-        )
+        filepath = options["file"]
+        excel_file = os.path.join(filepath)
 
         excel_import = ExcelImport(excel_file)
         excel_import.prep()
-        filepath = options["file"]
 
         stock_manager = StockManager(excel_import)
         panel_samples = excel_import.read_panels()

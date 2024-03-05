@@ -1,0 +1,36 @@
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 20px 0;
+    background-color: #f4f4f4;
+    color: #c3cbd4;
+}
+
+.pagination li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none; /* Remove bullet points */
+    padding: 0; /* Remove padding */
+}
+
+.pagination li a, .pagination li span {
+    margin: 0 5px; /* Add some space between the page numbers */
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    text-decoration: none; /* Remove underline from links */
+    color: #007BFF;
+}
+
+.pagination li a:hover {
+    background-color: #c3cbd4;
+    color: white;
+}
+
+.pagination li .current {
+    color: #007BFF;
+    font-weight: bold;
+}
