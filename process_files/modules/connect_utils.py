@@ -193,14 +193,22 @@ class StockManager:
         files = self.system_connector.query_files_by_filename(file_name)
         updated = 0
 
-        date_run = row["Run Date"]
+        date_run = str(row["Run Date"])
         if isinstance(date_run, pd.Timestamp):
             date_run = date_run.strftime("%Y-%m-%d")
             # set the date to the timezone
             date_run = make_aware(pd.Timestamp(date_run), timezone=self.time_zone)
 
-        if date_run in ["Missing", "n.a.", "missing", ""]:
+        elif date_run in ["Missing", "n.a.", "missing", "", "N/A"]:
             date_run = None
+
+        else:
+            try:
+                date_year = int(date_run)
+                date_run = f"{date_year}-01-01"
+                date_run = make_aware(pd.Timestamp(date_run), timezone=self.time_zone)
+            except:
+                date_run = None
 
         try:
             system_sample = SystemSample.objects.get(
@@ -208,6 +216,7 @@ class StockManager:
                 order=row["Order"],
             )
         except SystemSample.DoesNotExist:
+
             system_sample = SystemSample(
                 sample_name=row["Sample/Isolate/Strain Designation"],
                 order=row["Order"],
@@ -226,6 +235,7 @@ class StockManager:
                 storage_link=row["Link to Location in Storage3par"],
                 notes=row["Notes"],
             )
+
             system_sample.save()
 
             for file in files:
