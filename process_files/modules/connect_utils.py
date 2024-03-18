@@ -131,6 +131,19 @@ class SystemConnector:
 
         return files
 
+    def query_files_by_filename_nosample(self, file_name: str) -> List[FileInSystem]:
+        """
+        Query the file system for a list of sample names.
+        """
+
+        file_names = file_name.split(";")
+
+        files = FileInSystem.objects.filter(
+            file_name__in=file_names, system_sample=None
+        )
+
+        return files
+
     def query_filepath(self, row: pd.Series) -> str:
         """
         Query the file system for a list of sample names.
@@ -190,7 +203,7 @@ class StockManager:
 
     def sample_register(self, row: pd.Series):
         file_name = str(row["FASTQ FILE NAME"])
-        files = self.system_connector.query_files_by_filename(file_name)
+        files = self.system_connector.query_files_by_filename_nosample(file_name)
         updated = 0
 
         date_run = str(row["Run Date"])
@@ -210,6 +223,7 @@ class StockManager:
             except:
                 date_run = None
 
+        #####
         try:
             system_sample = SystemSample.objects.get(
                 sample_name=row["Sample/Isolate/Strain Designation"],
@@ -238,11 +252,11 @@ class StockManager:
 
             system_sample.save()
 
-            for file in files:
-                file.system_sample = system_sample
-                file.save()
+        for file in files:
+            file.system_sample = system_sample
+            file.save()
 
-            updated = 1
+        updated = 1
 
         return updated
 
