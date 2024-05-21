@@ -159,7 +159,17 @@ class SystemConnector:
                 filename.replace("_fastq", ".fastq.gz")
             )
 
-        files = FileInSystem.objects.filter(file_name__in=fastq_file_name_possibilities)
+        fastq_file_name_possibilities = list(set(fastq_file_name_possibilities))
+        pk_list = []
+        for filename in fastq_file_name_possibilities:
+            files = FileInSystem.objects.filter(file_name__icontains=filename)
+            if files.exists():
+                # append all
+                pk_list.extend(files.values_list("pk", flat=True))
+
+        pk_list = list(set(pk_list))
+        files = FileInSystem.objects.filter(pk__in=pk_list)
+        # files = FileInSystem.objects.filter(file_name__in=fastq_file_name_possibilities)
 
         return files
 
