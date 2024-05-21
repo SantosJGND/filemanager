@@ -20,7 +20,7 @@ class HomePageView(generic.TemplateView):
 
         if UpdateSystemFiles.objects.all().exists():
             updates = UpdateSystemFiles.objects.all().order_by("-date").first()
-            print(updates.date)
+
             context["last_file_update"] = updates.date
         else:
             context["last_file_update"] = "Never"
