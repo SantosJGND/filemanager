@@ -162,6 +162,7 @@ class SystemConnector:
             name = name.replace("_R1.fastq.gz", "")
 
             collapsed = name + "_collapse"
+            fastq_file_name_possibilities.append(collapsed)
 
         fastq_file_name_possibilities = list(set(fastq_file_name_possibilities))
         pk_list = []
