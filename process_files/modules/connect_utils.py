@@ -150,7 +150,6 @@ class SystemConnector:
         Query the file system for a list of sample names.
         """
 
-        sample_name = sample.sample_name
         fastq_file_name = sample.fastq_file_name
         fastq_file_name_possibilities = fastq_file_name.split(";")
         for filename in fastq_file_name_possibilities:
@@ -158,6 +157,11 @@ class SystemConnector:
             fastq_file_name_possibilities.append(
                 filename.replace("_fastq", ".fastq.gz")
             )
+
+            name = filename.replace("_R2.fastq.gz", "")
+            name = name.replace("_R1.fastq.gz", "")
+
+            collapsed = name + "_collapse"
 
         fastq_file_name_possibilities = list(set(fastq_file_name_possibilities))
         pk_list = []
