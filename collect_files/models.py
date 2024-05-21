@@ -24,6 +24,7 @@ class SystemSample(models.Model):
     published_id = models.CharField(max_length=200, default="")
     accession_id = models.CharField(max_length=200, default="")
     storage_link = models.CharField(max_length=200, default="")
+    fastq_file_name = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
 
     @property

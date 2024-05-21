@@ -5,6 +5,7 @@ import pandas as pd
 from collect_files.models import FileInSystem
 from django.db.models import Q
 from django.utils.timezone import make_aware
+from collect_files.models import SystemSample, UpdateSystemSamples
 
 
 class FastqDatabaseConnector(ABC):
@@ -144,6 +145,24 @@ class SystemConnector:
 
         return files
 
+    def query_files_by_sample(self, sample: SystemSample) -> List[FileInSystem]:
+        """
+        Query the file system for a list of sample names.
+        """
+
+        sample_name = sample.sample_name
+        fastq_file_name = sample.fastq_file_name
+        fastq_file_name_possibilities = fastq_file_name.split(";")
+        for filename in fastq_file_name_possibilities:
+            fastq_file_name_possibilities.append(filename.replace("-", "_"))
+            fastq_file_name_possibilities.append(
+                filename.replace("_fastq", ".fastq.gz")
+            )
+
+        files = FileInSystem.objects.filter(file_name__in=fastq_file_name_possibilities)
+
+        return files
+
     def query_filepath(self, row: pd.Series) -> str:
         """
         Query the file system for a list of sample names.
@@ -157,9 +176,6 @@ class SystemConnector:
             file_path = files.first().file_path
 
         return file_path
-
-
-from collect_files.models import SystemSample, UpdateSystemSamples
 
 
 class StockManager:
@@ -203,10 +219,9 @@ class StockManager:
 
     def sample_register(self, row: pd.Series):
         file_name = str(row["FASTQ FILE NAME"])
-        files = self.system_connector.query_files_by_filename_nosample(file_name)
         updated = 0
 
-        date_run = str(row["Run Date"])
+        date_run = row["Run Date"]
         if isinstance(date_run, pd.Timestamp):
             date_run = date_run.strftime("%Y-%m-%d")
             # set the date to the timezone
@@ -247,10 +262,13 @@ class StockManager:
                 published_id=row["Published ID"],
                 accession_id=row["SRA/ENA Run Accession # (Fastq)"],
                 storage_link=row["Link to Location in Storage3par"],
+                fastq_file_name=row["FASTQ FILE NAME"],
                 notes=row["Notes"],
             )
 
             system_sample.save()
+
+        files = self.system_connector.query_files_by_filename_nosample(file_name)
 
         for file in files:
             file.system_sample = system_sample
@@ -263,7 +281,6 @@ class StockManager:
     def sample_register_all(self, sample_file_df: pd.DataFrame) -> int:
 
         print(f"## Registering {sample_file_df.shape[0]} samples ##")
-
         update = sample_file_df.apply(self.sample_register, axis=1)
 
         UpdateSystemSamples.objects.create(samples_updated=update.sum())
