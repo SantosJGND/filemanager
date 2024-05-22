@@ -157,7 +157,6 @@ class SystemConnector:
     @staticmethod
     def process_fastq_filenames(fastq_file_name: str):
         fastq_file_name_possibilities = fastq_file_name.split(";")
-        print(fastq_file_name_possibilities)
         all_possibilities = []
         for filename in fastq_file_name_possibilities:
             all_possibilities.append(filename.replace("-", "_"))
@@ -248,8 +247,12 @@ class StockManager:
         return sample_file_df
 
     def sample_register(self, row: pd.Series):
-        file_name = str(row["FASTQ FILE NAME"])
+
         updated = 0
+
+        ## print a log if row index is divisible by 1000
+        if row.name % 1000 == 0:
+            print(f"Processing row {row.name}")
 
         date_run = row["Run Date"]
         if isinstance(date_run, pd.Timestamp):
