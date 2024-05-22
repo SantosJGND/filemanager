@@ -47,7 +47,11 @@ class FileInSystem(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     system_sample = models.ForeignKey(
-        SystemSample, on_delete=models.PROTECT, default=None, null=True
+        SystemSample,
+        on_delete=models.PROTECT,
+        default=None,
+        null=True,
+        related_name="files",
     )
 
     def __str__(self):
