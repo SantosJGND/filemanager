@@ -34,7 +34,14 @@ class HomePageView(generic.TemplateView):
         files_in_system = FileInSystem.objects.all().count()
         samples_in_system = SystemSample.objects.all().count()
 
+        files_with_no_sample = FileInSystem.objects.filter(system_sample=None).count()
+        files_with_sample = FileInSystem.objects.filter(
+            system_sample__isnull=False
+        ).count()
+
         context["files_in_system"] = files_in_system
+        context["linked_files"] = files_with_sample
+        context["unlinked_files"] = files_with_no_sample
         context["scan_root"] = SOURCE_DATA_ROOT
         context["samples_in_system"] = samples_in_system
 
