@@ -177,9 +177,10 @@ class SystemConnector:
             if pattern_found:
                 for pattern in pattern_found:
                     name = name.replace(pattern, "")
-            collapsed = name + "_collapse"
-            all_possibilities.append(collapsed)
-            all_possibilities.append(name)
+            for suffix in ["_collapse", "_consensus", "_1", "_2"]:
+                alt = name.replace(suffix, "")
+                all_possibilities.append(alt)
+            # all_possibilities.append(name)
         fastq_file_name_possibilities = list(set(all_possibilities))
         return fastq_file_name_possibilities
 
