@@ -192,7 +192,7 @@ class SystemConnector:
         fastq_file_name_possibilities = self.process_fastq_filenames(fastq_file_name)
         pk_list = []
         for filename in fastq_file_name_possibilities:
-            files = FileInSystem.objects.filter(file_name__icontains=filename)
+            files = FileInSystem.objects.filter(file_name__startswith=filename)
             if files.exists():
                 # append all
                 pk_list.extend(files.values_list("pk", flat=True))
