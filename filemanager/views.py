@@ -42,11 +42,9 @@ class HomePageView(generic.TemplateView):
         samples_with_files = SystemSample.objects.all().exclude(
             fastq_file_name__in=["n.a.", "nan"]
         )
-        linked_samples = samples_with_files.exclude(fileinsystem_set=None).count()
+        linked_samples = samples_with_files.exclude(files=None).count()
 
-        nsamples_missing_files = samples_with_files.filter(
-            fileinsystem_set=None
-        ).count()
+        nsamples_missing_files = samples_with_files.filter(files=None).count()
 
         ####
         files_in_system = FileInSystem.objects.all().count()
