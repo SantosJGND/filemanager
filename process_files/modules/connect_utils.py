@@ -112,7 +112,7 @@ def find_pattern_in_string(s):
         r"_S\d+_L\d+_R\d+_\d+\.fastq\.gz",
         r"_S\d+_R\d+_\d+\.fastq\.gz",
         r"_R\d+_\d+\.fastq\.gz",
-        r"_R\d+.fastq.gz",
+        r"_R\d+.fastq\.gz",
     ]
     all_matches = []
     for pattern in patterns:
@@ -168,7 +168,7 @@ class SystemConnector:
     @staticmethod
     def process_fastq_filenames(fastq_file_name: str):
         fastq_file_name_possibilities = fastq_file_name.split(";")
-        all_possibilities = []
+        all_possibilities = fastq_file_name_possibilities.copy()
         for filename in fastq_file_name_possibilities:
             # all_possibilities.append(filename.replace("-", "_"))
             # all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
@@ -179,9 +179,18 @@ class SystemConnector:
             if pattern_found:
                 for pattern in pattern_found:
                     name = name.replace(pattern, "")
-            for suffix in ["_collapse", "_consensus", "_1", "_2"]:
-                alt = name + suffix
-                all_possibilities.append(alt)
+
+                for suffix in [
+                    "_1",
+                    "_2",
+                    "_external",
+                    "_nested",
+                ]:
+                    alt = name + suffix + ".fastq.gz"
+                    all_possibilities.append(alt)
+
+                all_possibilities.append(name + ".fastq.gz")
+                all_possibilities.append(name + "_collapse")
             # all_possibilities.append(name)
         fastq_file_name_possibilities = list(set(all_possibilities))
         return fastq_file_name_possibilities
