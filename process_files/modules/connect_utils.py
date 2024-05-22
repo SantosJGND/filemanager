@@ -173,7 +173,7 @@ class SystemConnector:
             # all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
             # name = filename.replace("_R2.fastq.gz", "")
             # name = name.replace("_R1.fastq.gz", "")
-            pattern_found = find_pattern_in_string(name)
+            pattern_found = find_pattern_in_string(filename)
             if pattern_found:
                 for pattern in pattern_found:
                     name = name.replace(pattern, "")
