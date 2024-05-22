@@ -109,9 +109,10 @@ import re
 
 def find_pattern_in_string(s):
     patterns = [
+        r"_S\d+_L\d+_R\d+_\d+\.fastq\.gz",
         r"_S\d+_R\d+_\d+\.fastq\.gz",
         r"_R\d+_\d+\.fastq\.gz",
-        r"_S\d+_L\d+_R\d+_\d+\.fastq\.gz",
+        r"_R\d+.fastq.gz",
     ]
     all_matches = []
     for pattern in patterns:
@@ -170,8 +171,8 @@ class SystemConnector:
         for filename in fastq_file_name_possibilities:
             # all_possibilities.append(filename.replace("-", "_"))
             # all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
-            name = filename.replace("_R2.fastq.gz", "")
-            name = name.replace("_R1.fastq.gz", "")
+            # name = filename.replace("_R2.fastq.gz", "")
+            # name = name.replace("_R1.fastq.gz", "")
             pattern_found = find_pattern_in_string(name)
             if pattern_found:
                 for pattern in pattern_found:
