@@ -117,8 +117,10 @@ def find_pattern_in_string(s):
     all_matches = []
     for pattern in patterns:
         matches = re.findall(pattern, s)
+
         if matches:
             all_matches.extend(matches)
+            break
     return all_matches
 
 
@@ -178,7 +180,7 @@ class SystemConnector:
                 for pattern in pattern_found:
                     name = name.replace(pattern, "")
             for suffix in ["_collapse", "_consensus", "_1", "_2"]:
-                alt = name.replace(suffix, "")
+                alt = name + suffix
                 all_possibilities.append(alt)
             # all_possibilities.append(name)
         fastq_file_name_possibilities = list(set(all_possibilities))
