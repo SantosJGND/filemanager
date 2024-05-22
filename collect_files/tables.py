@@ -62,7 +62,7 @@ class SystemSampleTable(tables.Table):
         return f"{nfiles} files"
 
     def order_files(self, queryset, is_descending):
-        queryset = queryset.annotate(nfiles=Count("fileinsystem")).order_by(
+        queryset = queryset.annotate(nfiles=Count("files")).order_by(
             F("nfiles").desc(nulls_last=True)
         )
         return (queryset, True)
