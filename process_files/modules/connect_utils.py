@@ -154,32 +154,32 @@ class SystemConnector:
 
         return files
 
+    @staticmethod
+    def process_fastq_filenames(fastq_file_name: str):
+        fastq_file_name_possibilities = fastq_file_name.split(";")
+        print(fastq_file_name_possibilities)
+        all_possibilities = []
+        for filename in fastq_file_name_possibilities:
+            all_possibilities.append(filename.replace("-", "_"))
+            all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
+            name = filename.replace("_R2.fastq.gz", "")
+            name = name.replace("_R1.fastq.gz", "")
+            pattern_found = find_pattern_in_string(name)
+            if pattern_found:
+                name = name.replace(pattern_found[0], "")
+            collapsed = name + "_collapse"
+            all_possibilities.append(collapsed)
+            all_possibilities.append(name)
+        fastq_file_name_possibilities = list(set(all_possibilities))
+        return fastq_file_name_possibilities
+
     def query_files_by_sample(self, sample: SystemSample) -> List[FileInSystem]:
         """
         Query the file system for a list of sample names.
         """
 
         fastq_file_name = sample.fastq_file_name
-        fastq_file_name_possibilities = fastq_file_name.split(";")
-        for filename in fastq_file_name_possibilities:
-            fastq_file_name_possibilities.append(filename.replace("-", "_"))
-            fastq_file_name_possibilities.append(
-                filename.replace("_fastq", ".fastq.gz")
-            )
-
-            name = filename.replace("_R2.fastq.gz", "")
-            name = name.replace("_R1.fastq.gz", "")
-
-            pattern_found = find_pattern_in_string(name)
-
-            if pattern_found:
-                name = name.replace(pattern_found[0], "")
-
-            collapsed = name + "_collapse"
-            fastq_file_name_possibilities.append(collapsed)
-            fastq_file_name_possibilities.append(name)
-
-        fastq_file_name_possibilities = list(set(fastq_file_name_possibilities))
+        fastq_file_name_possibilities = self.process_fastq_filenames(fastq_file_name)
         pk_list = []
         for filename in fastq_file_name_possibilities:
             files = FileInSystem.objects.filter(file_name__icontains=filename)
@@ -310,6 +310,8 @@ class StockManager:
 
     def sample_register_all(self, sample_file_df: pd.DataFrame) -> int:
 
+        # remove nans from fastq file name
+        sample_file_df = sample_file_df.dropna(subset=["FASTQ FILE NAME"])
         print(f"## Registering {sample_file_df.shape[0]} samples ##")
         update = sample_file_df.apply(self.sample_register, axis=1)
 
