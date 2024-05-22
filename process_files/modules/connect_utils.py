@@ -167,7 +167,6 @@ class SystemConnector:
     def process_fastq_filenames(fastq_file_name: str):
         fastq_file_name_possibilities = fastq_file_name.split(";")
         all_possibilities = []
-        print(fastq_file_name_possibilities)
         for filename in fastq_file_name_possibilities:
             # all_possibilities.append(filename.replace("-", "_"))
             # all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
@@ -181,7 +180,6 @@ class SystemConnector:
             collapsed = name + "_collapse"
             all_possibilities.append(collapsed)
             all_possibilities.append(name)
-        print(all_possibilities)
         fastq_file_name_possibilities = list(set(all_possibilities))
         return fastq_file_name_possibilities
 

@@ -33,6 +33,20 @@ class HomePageView(generic.TemplateView):
 
         files_in_system = FileInSystem.objects.all().count()
         samples_in_system = SystemSample.objects.all().count()
+        samples_without_files = SystemSample.objects.filter(
+            fastq_file_name__in=["n.a.", "nan"]
+        ).count()
+
+        samples_with_missing_files = SystemSample.objects.all().exclude(
+            fastq_file_name__in=["n.a.", "nan"]
+        )
+        nsamples_missing_files = 0
+        linked_samples = 0
+        for sample in samples_with_missing_files:
+            if FileInSystem.objects.filter(system_sample=sample).exists():
+                linked_samples += 1
+                continue
+            nsamples_missing_files += 1
 
         files_with_no_sample = FileInSystem.objects.filter(system_sample=None).count()
         files_with_sample = FileInSystem.objects.filter(
@@ -40,6 +54,9 @@ class HomePageView(generic.TemplateView):
         ).count()
 
         context["files_in_system"] = files_in_system
+        context["linked_samples"] = linked_samples
+        context["samples_without_files"] = samples_without_files
+        context["samples_missing_files"] = nsamples_missing_files
         context["linked_files"] = files_with_sample
         context["unlinked_files"] = files_with_no_sample
         context["scan_root"] = SOURCE_DATA_ROOT
