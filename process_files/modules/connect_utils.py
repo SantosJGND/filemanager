@@ -104,6 +104,15 @@ class ExcelImport(FastqDatabaseConnector):
         ]
 
 
+import re
+
+
+def find_pattern_in_string(s):
+    pattern = r"_S\d+_R\d+_\d+\.fastq\.gz"
+    matches = re.findall(pattern, s)
+    return matches
+
+
 ##
 class SystemConnector:
     """
@@ -160,9 +169,16 @@ class SystemConnector:
 
             name = filename.replace("_R2.fastq.gz", "")
             name = name.replace("_R1.fastq.gz", "")
+            name = name.replace("")
+
+            pattern_found = find_pattern_in_string(name)
+
+            if pattern_found:
+                name = name.replace(pattern_found[0], "")
 
             collapsed = name + "_collapse"
             fastq_file_name_possibilities.append(collapsed)
+            fastq_file_name_possibilities.append(name)
 
         fastq_file_name_possibilities = list(set(fastq_file_name_possibilities))
         pk_list = []
@@ -283,7 +299,7 @@ class StockManager:
 
             system_sample.save()
 
-        files = self.system_connector.query_files_by_filename_nosample(file_name)
+        files = self.system_connector.query_files_by_sample(system_sample)
 
         for file in files:
             file.system_sample = system_sample
