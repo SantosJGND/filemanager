@@ -158,9 +158,10 @@ class SystemConnector:
     def process_fastq_filenames(fastq_file_name: str):
         fastq_file_name_possibilities = fastq_file_name.split(";")
         all_possibilities = []
+        print(fastq_file_name_possibilities)
         for filename in fastq_file_name_possibilities:
-            all_possibilities.append(filename.replace("-", "_"))
-            all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
+            # all_possibilities.append(filename.replace("-", "_"))
+            # all_possibilities.append(filename.replace("_fastq", ".fastq.gz"))
             name = filename.replace("_R2.fastq.gz", "")
             name = name.replace("_R1.fastq.gz", "")
             pattern_found = find_pattern_in_string(name)
