@@ -19,6 +19,77 @@ class FastqDatabaseConnector(ABC):
     def query_filenames(self, sample_names: list[str]) -> pd.DataFrame:
         pass
 
+#### TODO Not working yet...
+class RequestExcelImport(FastqDatabaseConnector):
+    engine: Literal["xlrd", "openpyxl", "odf", "pyxlsb"] | None = "openpyxl"
+    panel: str = "Folha1"
+    filename_col_excel = "FASTQ FILE NAME"
+
+    sample_name_col_excel = "Sample_Name"
+
+    columns = [
+        "Species",
+        "Sample_Name",
+        "Concentration",        
+        "Selection_Criteria", 
+        "Priority", 
+        "Budget",
+        "Method",
+        "Return_Sample",
+        "Validation",
+        "Comments"
+    ]
+
+    def __init__(self, file):
+        self.file = file
+        try:
+            self.sample_files_df = pd.DataFrame(
+                columns=[self.sample_col_name, self.filename_col_name]
+            )
+        except Exception as e:
+            print(e)
+            raise ValueError("Error reading the file")
+
+    def read_panels(self):
+        return pd.read_excel(self.file, sheet_name=self.panel, engine=self.engine)
+
+    def get_sample_filenames(self) -> pd.DataFrame:
+        df = self.read_panels()
+
+        return df[[self.sample_name_col_excel, self.filename_col_excel]].rename(
+            columns={
+                self.sample_name_col_excel: self.sample_col_name,
+                self.filename_col_excel: self.filename_col_name,
+            }
+        )
+
+    def prep(self):
+        self.sample_files_df = (
+            self.get_sample_filenames()
+            .dropna(subset=[self.filename_col_name])
+            .drop_duplicates(subset=[self.filename_col_name])
+            .reset_index(drop=True)
+        )
+
+        self.sample_files_df[self.simplified_sample_name_col_excel] = (
+            self.sample_files_df[self.sample_col_name].str.replace("-", "_")
+        )
+
+    def query_filenames(self, sample_names: list[str]) -> pd.DataFrame:
+        """
+        Query the sample files dataframe for a list of sample names.
+        it is possible that the original name has a different combination of - and _.
+        """
+
+        return self.sample_files_df[
+            self.sample_files_df[self.sample_col_name].isin(sample_names)
+            | self.sample_files_df[self.simplified_sample_name_col_excel].isin(
+                sample_names
+            )
+        ]
+
+
+##
 
 class ExcelImport(FastqDatabaseConnector):
     engine: Literal["xlrd", "openpyxl", "odf", "pyxlsb"] | None = "openpyxl"

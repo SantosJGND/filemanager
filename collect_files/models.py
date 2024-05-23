@@ -1,11 +1,18 @@
 from django.db import models
+import uuid
 
-# Create your models here.
+def generate_filename(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    return f"uploads/{filename}"
 
 
 class UpdateSystemFiles(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    files_updated = models.IntegerField()
+    file = models.FileField(upload_to=generate_filename, default=None)
+    filename = models.CharField(max_length=200, default="")
+    contact = models.CharField(max_length=200, default=None)
+    is_fulfilled = models.BooleanField(auto_created=False, default=False)
 
 
 class SystemSample(models.Model):

@@ -4,6 +4,19 @@
 
 {% block content %} 
 
-    <h1>My Table</h1>
+    {% if success %}
+    Success {{ success }}
+    {% endif %}
+    <h1>Upload User Request</h1>
+    {% if not success %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- <input type="file" id="request" name="request_filename"> -->
+        {{ form.as_p }}
+        <br/><br/>
+        <button type="submit">Upload</button>
+    </form>
+    {% endif %}
+
 
 {% endblock %}
