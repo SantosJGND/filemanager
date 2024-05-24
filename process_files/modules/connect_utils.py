@@ -117,7 +117,6 @@ def find_pattern_in_string(s):
     all_matches = []
     for pattern in patterns:
         matches = re.findall(pattern, s)
-
         if matches:
             all_matches.extend(matches)
             break
@@ -179,7 +178,6 @@ class SystemConnector:
             if pattern_found:
                 for pattern in pattern_found:
                     name = name.replace(pattern, "")
-
                 for suffix in [
                     "_1",
                     "_2",
@@ -188,17 +186,29 @@ class SystemConnector:
                 ]:
                     alt = name + suffix + ".fastq.gz"
                     all_possibilities.append(alt)
-
                 all_possibilities.append(name + ".fastq.gz")
                 all_possibilities.append(name + "_collapse")
             # all_possibilities.append(name)
         fastq_file_name_possibilities = list(set(all_possibilities))
+        fastq_file_name_possibilities = [x for x in fastq_file_name_possibilities if x]
         return fastq_file_name_possibilities
 
     def query_files_by_sample(self, sample: SystemSample) -> List[FileInSystem]:
         """
         Query the file system for a list of sample names.
         """
+
+        if "nofiles" in sample.fastq_file_name.lower():
+            return []
+
+        if "n.a." in sample.fastq_file_name.lower():
+            return []
+
+        if "missing" in sample.fastq_file_name.lower():
+            return []
+
+        if "nan" in sample.fastq_file_name.lower():
+            return []
 
         fastq_file_name = sample.fastq_file_name
         fastq_file_name_possibilities = self.process_fastq_filenames(fastq_file_name)
