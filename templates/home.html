@@ -2,6 +2,17 @@
 {% load static %} 
 {% block content %}
 
+
+<style>
+    .homecard {
+        margin-top: 20px;
+    }
+    .table td, .table th {
+        text-align: center; /* Center the text */
+        vertical-align: middle; /* Align the content to the middle vertically */
+    }
+</style>
+
 <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 
 <h1>Dashboard</h1>
@@ -33,7 +44,7 @@
                         </tr>
                         <tr>
                             <td><a href="http://192.168.33.209:8080/">http://192.168.33.209:8080/</a></td>
-                            <td>Viral / Bacteria, Deprec Notice</td>
+                            <td>Viral / Bacteria, <strong>Deprec Notice</strong></td>
                             <td>latest</td>
                         </tr>
                         <tr>
