@@ -311,6 +311,9 @@ class StockManager:
                 order=row["Order"],
             )
             system_sample.fastq_file_name = row["FASTQ FILE NAME"]
+            system_sample.nfiles = FileInSystem.objects.filter(
+                system_sample=system_sample
+            ).count()
             system_sample.save()
 
         except SystemSample.DoesNotExist:
@@ -342,6 +345,10 @@ class StockManager:
             for file in files:
                 file.system_sample = system_sample
                 file.save()
+
+            system_sample.nfiles = FileInSystem.objects.filter(
+                system_sample=system_sample
+            ).count()
 
         updated = 1
 

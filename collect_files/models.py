@@ -26,6 +26,7 @@ class SystemSample(models.Model):
     storage_link = models.CharField(max_length=200, default="")
     fastq_file_name = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
+    nfiles = models.IntegerField(default=0)
 
     # @property
     # def files(self):
