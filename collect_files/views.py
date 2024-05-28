@@ -125,7 +125,7 @@ def download_tsv(request):
                 sample.bioproject,
                 sample.owner,
                 sample.run_date_str,
-                sample.files.count(),
+                sample.nfiles,
                 sample.fastq_file_name,
             ]
         )  # Replace with your table data
