@@ -27,9 +27,9 @@ class SystemSample(models.Model):
     fastq_file_name = models.CharField(max_length=200, default="")
     notes = models.TextField(default="")
 
-    @property
-    def files(self):
-        return FileInSystem.objects.filter(system_sample=self)
+    # @property
+    # def files(self):
+    #    return FileInSystem.objects.filter(system_sample=self)
 
 
 class UpdateSystemSamples(models.Model):

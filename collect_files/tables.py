@@ -48,6 +48,7 @@ class SystemSampleTable(tables.Table):
             "owner",
             "files",
             "run_date",
+            "fastq_file_name",
         )
         attrs = {
             "class": "files-table table-striped table-bordered table-hover",

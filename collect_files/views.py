@@ -89,3 +89,45 @@ class SamplesView(generic.TemplateView):
 
     def get_queryset(self):
         return SystemSample.objects.all()
+
+
+import csv
+from django.http import HttpResponse
+
+
+def download_tsv(request):
+    response = HttpResponse(content_type="text/tab-separated-values")
+    response["Content-Disposition"] = 'attachment; filename="table.tsv"'
+
+    writer = csv.writer(response, delimiter="\t")
+    writer.writerow(
+        [
+            "Sample Name",
+            "Species",
+            "Department",
+            "Project",
+            "Bioproject",
+            "Owner",
+            "Run Date",
+            "Files",
+            "Fastq File Name",
+        ]
+    )  # Replace with your table headers
+
+    for sample in SystemSample.objects.all():  # Replace with your queryset
+
+        writer.writerow(
+            [
+                sample.sample_name,
+                sample.species,
+                sample.department,
+                sample.project,
+                sample.bioproject,
+                sample.owner,
+                sample.run_date,
+                sample.files.count(),
+                sample.fastq_file_name,
+            ]
+        )  # Replace with your table data
+
+    return response
