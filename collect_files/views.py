@@ -124,7 +124,7 @@ def download_tsv(request):
                 sample.project,
                 sample.bioproject,
                 sample.owner,
-                sample.run_date,
+                sample.run_date_str,
                 sample.files.count(),
                 sample.fastq_file_name,
             ]

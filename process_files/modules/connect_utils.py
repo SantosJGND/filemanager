@@ -310,6 +310,9 @@ class StockManager:
                 sample_name=row["Sample/Isolate/Strain Designation"],
                 order=row["Order"],
             )
+            system_sample.fastq_file_name = row["FASTQ FILE NAME"]
+            system_sample.save()
+
         except SystemSample.DoesNotExist:
 
             system_sample = SystemSample(
@@ -334,11 +337,11 @@ class StockManager:
 
             system_sample.save()
 
-        files = self.system_connector.query_files_by_sample(system_sample)
+            files = self.system_connector.query_files_by_sample(system_sample)
 
-        for file in files:
-            file.system_sample = system_sample
-            file.save()
+            for file in files:
+                file.system_sample = system_sample
+                file.save()
 
         updated = 1
 
