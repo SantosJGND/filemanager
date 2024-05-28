@@ -167,6 +167,16 @@ class SystemConnector:
     @staticmethod
     def process_fastq_filenames(fastq_file_name: str):
         fastq_file_name_possibilities = fastq_file_name.split(";")
+
+        if (
+            len(fastq_file_name_possibilities) == 1
+            and fastq_file_name.count("fastq.gz") == 2
+        ):
+            fastq_file_name_possibilities = fastq_file_name.split("fastq.gz")
+            fastq_file_name_possibilities = [
+                x + "fastq.gz" for x in fastq_file_name_possibilities if x
+            ]
+
         all_possibilities = fastq_file_name_possibilities.copy()
         for filename in fastq_file_name_possibilities:
             # all_possibilities.append(filename.replace("-", "_"))
@@ -221,8 +231,6 @@ class SystemConnector:
 
         pk_list = list(set(pk_list))
         files = FileInSystem.objects.filter(pk__in=pk_list)
-        # files = FileInSystem.objects.filter(file_name__in=fastq_file_name_possibilities)
-
         return files
 
     def query_filepath(self, row: pd.Series) -> str:
@@ -314,7 +322,22 @@ class StockManager:
             system_sample.nfiles = FileInSystem.objects.filter(
                 system_sample=system_sample
             ).count()
+
+            if system_sample.fastq_file_name.strip() != system_sample.fastq_file_name:
+                system_sample.fastq_file_name = system_sample.fastq_file_name.strip()
+
             system_sample.save()
+
+            if system_sample.nfiles == 0:
+                files = self.system_connector.query_files_by_sample(system_sample)
+
+                for file in files:
+                    file.system_sample = system_sample
+                    file.save()
+
+                system_sample.nfiles = FileInSystem.objects.filter(
+                    system_sample=system_sample
+                ).count()
 
         except SystemSample.DoesNotExist:
 
