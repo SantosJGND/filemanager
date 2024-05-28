@@ -1,0 +1,192 @@
+{% extends '_layouts/base.html' %} 
+{% load render_table from django_tables2 %}
+{% load static %}
+
+{% block content %} 
+
+
+<style>
+    #uploadForm {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+        width: 50%;  /* Make the form wider */
+        max-width: 800px;  /* Optional: prevent the form from becoming too wide on large screens */
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        color: #007bff;  /* Bootstrap primary color */
+    }
+
+    .btn-icon:hover {
+        color: #0056b3;  /* Bootstrap primary hover color */
+    }
+
+</style>
+
+<head>
+    <!-- Other head elements -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<h1>Metagenomics</h1>
+
+<div class="homecard row">
+    <div class="col-sm-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <img src="{% static 'images/pngegg.png' %}" alt="File Icon" width="50" height="50"> Metagenomics Samples
+                </h5>
+
+                <button id="UploadFormButton" class="btn btn-primary" url="{% url 'get_accounts' %}" >Sample Batch</button>
+                <div id="table-container" url-get-samples="{% url 'get_samples' %}">
+                    <table id="samplesTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>File R1</th>
+                                <th>File R2</th>
+                                <th>Project</th>
+                                <th>Account</th>
+                                <th>Machine</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="uploadForm" style="display: none;">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="file">Televir Upload File:</label>
+        <input type="file" id="file" name="file" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="url">Insaflu Televir Project URL:</label>
+        <input type="text" id="url" name="url" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="name">Project Name:</label>
+        <input type="text" id="name" name="name" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="account">Insaflu Account:</label>
+        <select id="account" name="account" class="form-control"></select>
+    </div>
+    <button type="submit" class="btn btn-primary" url="{% url 'upload_samples' %}">Upload</button>
+
+    <button type="button" id="hideUploadForm" class="btn btn-secondary"><i class="fas fa-times"></i></button>
+
+</form>
+
+
+<!-- JavaScript to show and hide the form -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script>
+    function loadTable() {
+        $.ajax({
+
+            url: $('#table-container').attr('url-get-samples'),
+            method: 'GET',
+            success: function(data) {
+                console.log(data);
+                var tbody = $('#samplesTable tbody');
+                tbody.empty();
+        
+                data.samples.forEach(function(sample) {
+                    console.log(sample);
+                    var row = $('<tr>');
+                    row.append('<td>' + sample.name + '</td>');
+                    row.append('<td>' + sample.file_r1 + '</td>');
+                    row.append('<td>' + sample.file_r2 + '</td>');
+                    row.append('<td>' + sample.projects + '</td>');
+                    row.append('<td>' + sample.account + '</td>');
+                    row.append('<td>' + sample.machine + '</td>');
+                    tbody.append(row);
+                });
+                
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        loadTable();
+    });
+
+    $('#hideUploadForm').click(function(e) {
+        e.stopPropagation();
+        $('#uploadForm').hide();
+    });
+
+    
+    $('#uploadForm').click(function(e) {
+        e.stopPropagation();
+    });
+
+    $('#UploadFormButton').click(function() {
+        console.log("Ho")
+        var url = $(this).attr('url');
+        console.log(url);
+        $.get(url, function(data) {
+            var accounts = data.accounts;
+            var select = $('#account');
+            select.empty();
+            for (var i = 0; i < accounts.length; i++) {
+                var account = accounts[i];
+                var option = $('<option></option>');
+                option.attr('value', account.id);
+                option.text(account.name);
+                select.append(option);
+            }
+        });
+
+        $('#uploadForm').show();
+
+    });
+
+    $('#uploadForm').submit(function(e) {
+        e.preventDefault();
+    
+        var formData = new FormData(this);
+        url= $(this).find('button').attr('url');
+        
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.is_ok) {
+                    alert('File uploaded successfully');
+                    $('#uploadForm').hide();
+                    loadTable();
+                } else if (data.is_empty) {
+                    alert('Uploaded file is empty');
+                } else {
+                    alert('An error occurred while uploading the file');
+                }
+            }
+        });
+    });
+
+</script>
+
+
+{% endblock content %}

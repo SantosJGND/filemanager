@@ -11,7 +11,35 @@
         text-align: center; /* Center the text */
         vertical-align: middle; /* Align the content to the middle vertically */
     }
+    #createForm {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+        width: 50%;  /* Make the form wider */
+        max-width: 800px;  /* Optional: prevent the form from becoming too wide on large screens */
+    }
+    .btn-icon {
+        background: none;
+        border: none;
+        color: #007bff;  /* Bootstrap primary color */
+    }
+    
+    .btn-icon:hover {
+        color: #0056b3;  /* Bootstrap primary hover color */
+    }
 </style>
+
+
+<head>
+    <!-- Other head elements -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
 
 <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 
@@ -27,33 +55,10 @@
 
                 <h5 class="card-title">
                     <p class="card-text">Currently available INSaFLU-TELEVIR</p>
+                    
                 </h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>URL</th>
-                            <th>Description</th>
-                            <th>Version</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><a href="http://192.168.40.15:8080/">http://192.168.40.15:8080/</a></td>
-                            <td>Viral / Bacteria, Clinical Metagenomics</td>
-                            <td>latest</td>
-                        </tr>
-                        <tr>
-                            <td><a href="http://192.168.33.209:8080/">http://192.168.33.209:8080/</a></td>
-                            <td>Viral / Bacteria, <strong>Deprec Notice</strong></td>
-                            <td>latest</td>
-                        </tr>
-                        <tr>
-                            <td><a href="http://192.168.40.21:8080/">http://192.168.40.21:8080/</a></td>
-                            <td>Viral - Tests Only</td>
-                            <td>Production</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <button id="showFormButton" class="btn btn-primary">Create New Machine</button>
+                <div id="table-container"></div>
 
             </div>
         </div>
@@ -93,4 +98,160 @@
         </div>
     </div>
 </div>
+
+<!-- Form for creating a new InsafluMachine -->
+<form id="createForm" method="post" action="{% url 'create_machine' %}" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: white; padding: 20px; border: 1px solid #ccc;">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="url">URL:</label>
+        <input type="text" id="url" name="url" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="name">Version:</label>
+        <input type="text" id="version" name="version" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="button" id="hideForm" class="btn btn-secondary">Hide</button>
+</form>
+
+
+<!-- Form for adding an account -->
+<form id="addAccountForm"  url="{% url 'add_account' %}" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; background: white; padding: 20px; border: 1px solid #ccc;">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" class="form-control">
+    </div>
+    <input type="hidden" id="machineId" name="machineId">
+    <button type="submit" class="btn btn-primary">Add</button>
+    <button type="button" id="hideAddAccountForm" class="btn btn-secondary">Hide</button>
+</form>
+
+<!-- JavaScript to show and hide the form -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script>
+
+    $(document).ready(function() {
+        $.ajax({
+            url: 'process_files/get_machines/',  // Replace with your AJAX endpoint
+            method: 'GET',
+            success: function(data) {
+                var table = buildTable(data.machines);
+                $('#table-container').empty().append(table);  // Replace '#table-container' with the selector for your table container
+                loadButtons();
+            }
+        });
+    });
+
+    $('#hideForm').click(function() {
+        $('#createForm').hide();
+    });
+
+    document.getElementById('showFormButton').addEventListener('click', function() {
+        var form = document.getElementById('createForm');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    });
+
+    function loadButtons() {
+        $('.deprecate-button').click(function() {
+            var row = $(this).closest('tr');
+            var id = $(this).attr('machine-id');
+            var url = $(this).attr('url');
+        
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    'machine_id': id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function() {
+                    console.log("OIn");
+                    row.remove();
+                }
+            });
+        });
+    
+        $('#addAccountForm').submit(function(e) {
+            e.preventDefault();
+
+            var name = $('#name').val();
+            var machineId = $('#machineId').val();
+            var url = $(this).attr('url');
+            console.log(name);
+            console.log(url);
+            console.log(machineId);
+        
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    'name': name,
+                    'machine_id': machineId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function() {
+                    alert('Account added');
+                    $('#addAccountForm').hide();
+                }
+            });
+        });
+        
+        $('#hideAddAccountForm').click(function() {
+            $('#addAccountForm').hide();
+        });
+        
+        $('.add-account-button').click(function() {
+            var row = $(this).closest('tr');
+            var id = $(this).attr('machine-id');
+        
+            $('#machineId').val(id);
+            $('#addAccountForm').show();
+        });
+
+
+    }
+
+
+
+    function buildTable(machines) {
+        var table = $('<table>').addClass('table');
+    
+        // Create the table header
+        var thead = $('<thead>');
+        var headerRow = $('<tr>');
+        headerRow.append('<th>URL</th>');
+        headerRow.append('<th>Description</th>');
+        headerRow.append('<th>Version</th>');
+        headerRow.append('<th>Add Account</th>');
+        headerRow.append('<th>Deprecate</th>');
+        thead.append(headerRow);
+        table.append(thead);
+    
+        // Create the table body
+        var tbody = $('<tbody>');
+        $.each(machines, function(i, machine) {
+            var row = $('<tr>');
+            row.append('<td><a href="' + machine.url + '">' + machine.url + '</a></td>');
+            row.append('<td>' + machine.description + '</td>');
+            row.append('<td>' + machine.version + '</td>');
+            row.append('<td><button class="btn btn-icon add-account-button" title="Add Account" machine-id="' + machine.id + '"><i class="fas fa-plus"></i></button></td>');
+            row.append('<td><button class="btn btn-icon deprecate-button" title="Deprecate" machine-id="' + machine.id + '"><i class="fas fa-minus-circle"></i></button></td>');
+            tbody.append(row);
+        });
+        table.append(tbody);
+    
+        return table;
+    }
+</script>
+
 {% endblock %}

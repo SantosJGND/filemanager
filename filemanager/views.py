@@ -10,6 +10,7 @@ from collect_files.tables import SystemSampleTable
 
 from django.views import generic
 from filemanager.settings import SOURCE_DATA_ROOT
+from process_files.models import InsafluMachine
 
 
 class HomePageView(generic.TemplateView):
@@ -46,12 +47,19 @@ class HomePageView(generic.TemplateView):
 
         nsamples_missing_files = samples_with_files.filter(files=None).count()
 
+        ###
+        # Insaflu Machines
+        machines = InsafluMachine.objects.filter(deprecated=False)
+
         ####
         files_in_system = FileInSystem.objects.all().count()
         files_with_no_sample = FileInSystem.objects.filter(system_sample=None).count()
         files_with_sample = FileInSystem.objects.filter(
             system_sample__isnull=False
         ).count()
+
+        ####
+        context["machines"] = machines
 
         context["files_in_system"] = files_in_system
         context["linked_samples"] = linked_samples
