@@ -244,8 +244,8 @@
             row.append('<td><a href="' + machine.url + '">' + machine.url + '</a></td>');
             row.append('<td>' + machine.description + '</td>');
             row.append('<td>' + machine.version + '</td>');
-            row.append('<td><button class="btn btn-icon add-account-button" title="Add Account" machine-id="' + machine.id + '"><i class="fas fa-plus"></i></button></td>');
-            row.append('<td><button class="btn btn-icon deprecate-button" title="Deprecate" machine-id="' + machine.id + '"><i class="fas fa-minus-circle"></i></button></td>');
+            row.append('<td><button class="btn btn-icon add-account-button" title="Add Account" machine-id="' + machine.id + '" + url="{% url "create_machine" %}"><i class="fas fa-plus"></i></button></td>');
+            row.append('<td><button class="btn btn-icon deprecate-button" title="Deprecate" machine-id="' + machine.id + '" + url="{% url "deprecate_machine" %}"><i class="fas fa-minus-circle"></i></button></td>');
             tbody.append(row);
         });
         table.append(tbody);
