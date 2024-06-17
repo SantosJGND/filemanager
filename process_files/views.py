@@ -33,7 +33,6 @@ def create_insaflu_machine(request):
 @require_POST
 def add_account(request):
 
-    print(request.method)
     if request.method == "POST":
         name = request.POST.get("name")
         machine_id = request.POST.get("machine_id")
@@ -90,7 +89,6 @@ class MetagenomicsView(generic.TemplateView):
 @require_GET
 def get_televir_samples(request):
     samples = TelevirSample.objects.all()
-    print(samples)
     return JsonResponse(
         {
             "samples": [
@@ -123,12 +121,10 @@ def get_insaflu_accounts(request):
         )
 
     def account_name(account: InsafluAccount):
-        print(account)
         return f"{account.name} ({process_machine_url(account.machine.url)})"
 
     try:
         accounts = InsafluAccount.objects.filter(machine__deprecated=False)
-        print(accounts)
 
         return JsonResponse(
             {
@@ -150,7 +146,6 @@ def upload_samples(request):
     if request.method == "POST":
 
         try:
-            print(request.FILES)
             file = request.FILES["file"]
 
             df = pd.read_csv(file, sep="\t")
@@ -162,8 +157,7 @@ def upload_samples(request):
             )
 
         try:
-            print(df.head())
-            print(request.POST)
+
             # get project urls
             project_url = request.POST.get("url")
             project_name = request.POST.get("name")
