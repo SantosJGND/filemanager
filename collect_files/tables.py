@@ -64,6 +64,8 @@ class SystemSampleTable(tables.Table):
         return f"{nfiles} files"
 
     def render_run_date(self, value, record: SystemSample) -> str:
+        if value is None:
+            return "n.a."
         return value.strftime("%Y-%m-%d")
 
     def order_files(self, queryset, is_descending):
