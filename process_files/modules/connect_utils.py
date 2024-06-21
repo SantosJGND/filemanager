@@ -166,6 +166,17 @@ class SystemConnector:
 
     @staticmethod
     def process_fastq_filenames(fastq_file_name: str):
+
+        def fix_duplicate_R1(file_name, pattern1="_R1", pattern2="_R2"):
+            """
+            in case of two pattern in the filename, replace the second one with pattern2
+            """
+            if file_name.count(pattern1) == 2:
+                file_name = file_name.replace(pattern1, pattern2, 1)
+            return file_name
+
+        fastq_file_name = fix_duplicate_R1(fastq_file_name, "_R1", "_R2")
+
         fastq_file_name_possibilities = fastq_file_name.split(";")
         fastq_file_name_possibilities = [
             x.strip() for x in fastq_file_name_possibilities if x
@@ -384,6 +395,9 @@ class StockManager:
 
         # remove nans from fastq file name
         sample_file_df = sample_file_df.dropna(subset=["FASTQ FILE NAME"])
+        # remove duplicates accross all columns
+        sample_file_df = sample_file_df.drop_duplicates().reset_index(drop=True)
+        # reset index
         print(f"## Registering {sample_file_df.shape[0]} samples ##")
         update = sample_file_df.apply(self.sample_register, axis=1)
 
