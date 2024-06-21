@@ -135,9 +135,9 @@ def download_tsv(request):
 
 def download_csv_for_FileInSystem(request):
     response = HttpResponse(content_type="text/tab-separated-values")
-    response["Content-Disposition"] = 'attachment; filename="files_in_system.csv"'
+    response["Content-Disposition"] = 'attachment; filename="files_in_system.tsv"'
 
-    writer = csv.writer(response)
+    writer = csv.writer(response, delimiter="\t")
     writer.writerow(
         ["File Name", "File Size", "File Path", "System Sample"]
     )  # CSV headers
