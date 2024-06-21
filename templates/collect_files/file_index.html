@@ -6,11 +6,17 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/tables.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'css/pagination.css' %}">
 
-<form method="get">
-    <input type="text" name="search" value="{{ request.GET.search }}">
-    <input type="submit" value="Search">
-</form>
-
+<div class="row">
+    <div class="col-md-8">
+        <form method="get">
+            <input type="text" name="search" value="{{ request.GET.search }}">
+            <input type="submit" value="Search">
+        </form>
+    </div>
+    <div class="col-md-4 text-right">
+        <a href="{% url 'download_tsv_fileinsystem' %}" class="btn btn-primary">Download TSV</a>
+    </div>
+</div>
 
 {% render_table files_table %} 
 

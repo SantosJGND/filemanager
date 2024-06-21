@@ -50,6 +50,7 @@ class SystemSampleTable(tables.Table):
             "run_date",
             "fastq_file_name",
         )
+
         attrs = {
             "class": "files-table table-striped table-bordered table-hover",
             "th": {"class": "files-table-header"},
@@ -61,6 +62,9 @@ class SystemSampleTable(tables.Table):
         nfiles = FileInSystem.objects.filter(system_sample=record).count()
 
         return f"{nfiles} files"
+
+    def render_run_date(self, value, record: SystemSample) -> str:
+        return value.strftime("%Y-%m-%d")
 
     def order_files(self, queryset, is_descending):
         queryset = queryset.annotate(number_files=Count("files")).order_by(

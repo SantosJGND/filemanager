@@ -131,3 +131,27 @@ def download_tsv(request):
         )  # Replace with your table data
 
     return response
+
+
+def download_csv_for_FileInSystem(request):
+    response = HttpResponse(content_type="text/tab-separated-values")
+    response["Content-Disposition"] = 'attachment; filename="files_in_system.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(
+        ["File Name", "File Size", "File Path", "System Sample"]
+    )  # CSV headers
+
+    for file in FileInSystem.objects.all():  # Iterate over all FileInSystem objects
+        writer.writerow(
+            [
+                file.file_name,
+                file.file_size,
+                file.file_path,
+                (
+                    file.system_sample.sample_name if file.system_sample else "N/A"
+                ),  # Assuming system_sample is a ForeignKey to SystemSample
+            ]
+        )
+
+    return response
