@@ -167,6 +167,9 @@ class SystemConnector:
     @staticmethod
     def process_fastq_filenames(fastq_file_name: str):
         fastq_file_name_possibilities = fastq_file_name.split(";")
+        fastq_file_name_possibilities = [
+            x.strip() for x in fastq_file_name_possibilities if x
+        ]
 
         if (
             len(fastq_file_name_possibilities) == 1
