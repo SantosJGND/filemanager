@@ -64,9 +64,9 @@ class SystemSampleTable(tables.Table):
         return f"{nfiles} files"
 
     def render_run_date(self, value, record: SystemSample) -> str:
-        if value is None:
+        if record.run_date is None:
             return "n.a."
-        return value.strftime("%Y-%m-%d")
+        return record.run_date("%Y-%m-%d")
 
     def order_files(self, queryset, is_descending):
         queryset = queryset.annotate(number_files=Count("files")).order_by(
