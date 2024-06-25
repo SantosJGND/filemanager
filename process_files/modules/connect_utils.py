@@ -51,7 +51,6 @@ class ExcelImport(FastqDatabaseConnector):
         "Notes",
         "Outputs",
         "FASTQ FILE NAME",
-        #"Link to Location in Storage3par",
         "EXTERNAL DISK Location",
     ]
 
@@ -281,7 +280,6 @@ class StockManager:
         "Run Date",
         "Notes",
         "FASTQ FILE NAME",
-        #"Link to Location in Storage3par",
     ]
 
     data_connector: FastqDatabaseConnector
@@ -370,7 +368,6 @@ class StockManager:
                 run_date_str=row["Run Date"],
                 published_id=row["Published ID"],
                 accession_id=row["SRA/ENA Run Accession # (Fastq)"],
-                #storage_link=row["Link to Location in Storage3par"],
                 fastq_file_name=row["FASTQ FILE NAME"],
                 notes=row["Notes"],
             )
@@ -386,6 +383,8 @@ class StockManager:
             system_sample.nfiles = FileInSystem.objects.filter(
                 system_sample=system_sample
             ).count()
+
+            system_sample.save()
 
         updated = 1
 
