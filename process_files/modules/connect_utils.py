@@ -233,6 +233,9 @@ class SystemConnector:
         if "nan" in sample.fastq_file_name.lower():
             return []
 
+        if "N/A" in sample.fastq_file_name.lower():
+            return []
+
         fastq_file_name = sample.fastq_file_name
         fastq_file_name_possibilities = self.process_fastq_filenames(fastq_file_name)
         pk_list = []
