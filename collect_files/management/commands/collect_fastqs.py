@@ -10,7 +10,7 @@ from filemanager.settings import SOURCE_DATA_ROOT
 
 
 def match_file_pattern(file_name):
-    if ".fastq" in file_name:
+    if ".fastq.gz" in file_name:
         return True
 
     return False

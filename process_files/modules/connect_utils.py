@@ -236,6 +236,7 @@ class SystemConnector:
         fastq_file_name = sample.fastq_file_name
         fastq_file_name_possibilities = self.process_fastq_filenames(fastq_file_name)
         pk_list = []
+
         for filename in fastq_file_name_possibilities:
             files = FileInSystem.objects.filter(file_name__startswith=filename)
             if files.exists():
