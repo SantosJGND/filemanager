@@ -6,12 +6,16 @@ from collect_files.models import FileInSystem, UpdateSystemFiles
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
-from filemanager.settings import SOURCE_DATA_ROOT
+from filemanager.settings import SOURCE_DATA_ROOT, FILE_PATTERNS_IGNORE
 
 
-def match_file_pattern(file_name):
-    if ".fastq.gz" in file_name:
-        return True
+def match_file_pattern(file_name: str):
+    if file_name.endswith("fastq.gz") is False:
+        return False
+
+    for pattern in FILE_PATTERNS_IGNORE:
+        if pattern in file_name:
+            return False
 
     return False
 
@@ -49,6 +53,7 @@ def update_file_info(file_path) -> int:
     file_name, file_size, file_type, file_date, file_hash, file_deleted = get_file_info(
         file_path
     )
+
     try:
         file_in_system = FileInSystem.objects.get(file_path=file_path)
         return 0

@@ -140,3 +140,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # SOURCE DATA
 SOURCE_DATA_ROOT = config("SOURCE_DATA", default="C:/Users/vborges/Downloads")
+FILE_PATTERNS_IGNORE = [
+    "_pass_",
+    "_fail_",
+    "_runid_",
+    "Undetermined",
+]
