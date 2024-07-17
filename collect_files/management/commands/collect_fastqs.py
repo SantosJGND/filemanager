@@ -17,7 +17,7 @@ def match_file_pattern(file_name: str):
         if pattern in file_name:
             return False
 
-    return False
+    return True
 
 
 def check_if_symbolic_link(file_path):
@@ -72,12 +72,11 @@ def update_file_info(file_path) -> int:
         return 1
 
     except FileInSystem.MultipleObjectsReturned:
-
         return 0
 
 
 def find_files(path):
-    for root, dirs, files in os.walk(path):
+    for root, _, files in os.walk(path):
         for file in files:
             if match_file_pattern(file):
                 yield os.path.join(root, file)

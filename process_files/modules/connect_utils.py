@@ -332,6 +332,7 @@ class StockManager:
         try:
             system_sample = SystemSample.objects.get(
                 sample_name=row["Sample/Isolate/Strain Designation"],
+                fastq_file_name=row["FASTQ FILE NAME"],
             )
             system_sample.fastq_file_name = row["FASTQ FILE NAME"]
             system_sample.nfiles = FileInSystem.objects.filter(
