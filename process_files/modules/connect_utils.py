@@ -265,6 +265,9 @@ class SystemConnector:
         return file_path
 
 
+import pytz
+
+
 class StockManager:
     time_zone = "UTC"
     sample_column_fields = [
@@ -292,6 +295,7 @@ class StockManager:
     def __init__(self, data_connector):
         self.data_connector = data_connector
         self.system_connector = SystemConnector()
+        self.time_zone = pytz.timezone(self.time_zone)
 
     def query_filenames(self, sample_names: list[str]) -> pd.DataFrame:
         return self.data_connector.query_filenames(sample_names)
