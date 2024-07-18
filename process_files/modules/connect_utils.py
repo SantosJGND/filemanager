@@ -265,6 +265,22 @@ class SystemConnector:
         return file_path
 
 
+def register_sample_files(system_sample: SystemSample):
+    system_connector = SystemConnector()
+
+    files = system_connector.query_files_by_sample(system_sample)
+
+    for file in files:
+        file.system_sample = system_sample
+        file.save()
+
+    system_sample.nfiles = FileInSystem.objects.filter(
+        system_sample=system_sample
+    ).count()
+
+    system_sample.save()
+
+
 import pytz
 
 
@@ -349,15 +365,7 @@ class StockManager:
             system_sample.save()
 
             if system_sample.nfiles == 0:
-                files = self.system_connector.query_files_by_sample(system_sample)
-
-                for file in files:
-                    file.system_sample = system_sample
-                    file.save()
-
-                system_sample.nfiles = FileInSystem.objects.filter(
-                    system_sample=system_sample
-                ).count()
+                register_sample_files(system_sample)
 
         except SystemSample.DoesNotExist:
 
@@ -382,17 +390,23 @@ class StockManager:
 
             system_sample.save()
 
-            files = self.system_connector.query_files_by_sample(system_sample)
+            register_sample_files(system_sample)
 
-            for file in files:
-                file.system_sample = system_sample
-                file.save()
+        except SystemSample.MultipleObjectsReturned:
 
-            system_sample.nfiles = FileInSystem.objects.filter(
-                system_sample=system_sample
-            ).count()
+            ### keep only one, delete the rest
+            samples = SystemSample.objects.filter(
+                sample_name=row["Sample/Isolate/Strain Designation"],
+                fastq_file_name=row["FASTQ FILE NAME"],
+            )
 
-            system_sample.save()
+            samples = samples.order_by("id")
+            system_sample = samples.first()
+            for sample in samples[1:]:
+                sample.delete()
+
+            ## register the files
+            register_sample_files(system_sample)
 
         updated = 1
 
