@@ -5,8 +5,7 @@ import pandas as pd
 from collect_files.models import FileInSystem
 from django.db.models import Q
 from django.utils.timezone import make_aware
-from collect_files.models import SystemSample, UpdateSystemSamples
-
+from collect_files.models import SystemSample
 
 class FastqDatabaseConnector(ABC):
     sample_col_name: str = "sample_name"
@@ -422,5 +421,5 @@ class StockManager:
         print(f"## Registering {sample_file_df.shape[0]} samples ##")
         update = sample_file_df.apply(self.sample_register, axis=1)
 
-        UpdateSystemSamples.objects.create(samples_updated=update.sum())
+
         return update.sum()

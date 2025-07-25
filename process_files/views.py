@@ -20,6 +20,11 @@ def create_insaflu_machine(request):
     # Validate the data here as needed...
     if InsafluMachine.objects.filter(url=url).exists():
         # Redirect to an error page or something
+        machine = InsafluMachine.objects.get(url=url)
+        machine.deprecated = False
+        machine.description = description
+        machine.version = version
+        machine.save()
         return redirect("home")
 
     # Create a new InsafluMachine object
